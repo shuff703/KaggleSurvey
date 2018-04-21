@@ -36,6 +36,7 @@ clean <- function(df){
   df <- select(df, 'CurrentJobTitleSelect', 'LanguageRecommendationSelect', 'LearningPlatformSelect', 'CoursePlatformSelect', 'MLSkillsSelect', 'MLTechniquesSelect', 'WorkAlgorithmsSelect', 'WorkToolsSelect', 'WorkMethodsSelect')
   flat_data <- cSplit(df, c('LearningPlatformSelect', 'CoursePlatformSelect', 'MLSkillsSelect', 'MLTechniquesSelect', 'WorkAlgorithmsSelect', 'WorkToolsSelect', 'WorkMethodsSelect'), sep = ',')
   flat_data$ID <- seq.int(nrow(flat_data))
+  print(flat_data)
   transactions <- gather(flat_data, key, Item , -ID, na.rm = TRUE) %>%
     filter(Item != '') %>%
     select(-key) %>%
@@ -57,7 +58,7 @@ clean_germany_f <- clean(germany_fem)
 getRules <- function (df, supp, conf){
   #Write the transactions to .csv
   # Create a temporary directory
-  dir.create(path = "CSVDatasets/tmp", showWarnings = FALSE)
+  dir.create(path = "tmp", showWarnings = FALSE)
   
   # Write our data.frame to a csv
   write.csv(df, "./tmp/transactions.csv")
@@ -80,8 +81,10 @@ getRules <- function (df, supp, conf){
   rules.sorted<-sort(rules, by="lift")
   inspect(rules.sorted)
   
-  quality(rules)<-round(quality(rules), digits=3)
-  inspect(sort(rules,by="confidence"))
+  #quality(rules)<-round(quality(rules), digits=3)
+  #inspect(sort(rules,by="confidence"))
+  
+  return(rules)
 }
 
 getRules(clean_usa_m, 0.1, .95)
