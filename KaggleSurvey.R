@@ -2,6 +2,8 @@ getwd()
 setwd('Documents/R/KaggleSurvey')
 kaggle_data <- read.csv('multipleChoiceResponses.csv')
 
+#Filter out Data Scientists
+data_science <- kaggle_data[kaggle_data$CurrentJobTitleSelect == 'Data Scientist',]
 #Filter Data by Country
 usa <- kaggle_data[kaggle_data$Country == 'United States',]
 germany <- kaggle_data[kaggle_data$Country == 'Germany',]
@@ -28,12 +30,13 @@ print(nrow(india_fem))
 
 #Clean the Data
 #Clean Function
-clean <- function(df){
+clean <- function(df, includeJob = TRUE){
   if(!require(tidyverse)) install.packages('tidyverse')
   library(tidyverse)
   if(!require(splitstackshape)) install.packages('splitstackshape')
   library(splitstackshape)
-  df <- select(df, 'CurrentJobTitleSelect', 'LanguageRecommendationSelect', 'LearningPlatformSelect', 'CoursePlatformSelect', 'MLSkillsSelect', 'MLTechniquesSelect', 'WorkAlgorithmsSelect', 'WorkToolsSelect', 'WorkMethodsSelect')
+  if(includeJob) df <- select(df, 'CurrentJobTitleSelect', 'LanguageRecommendationSelect', 'LearningPlatformSelect', 'CoursePlatformSelect', 'MLSkillsSelect', 'MLTechniquesSelect', 'WorkAlgorithmsSelect', 'WorkToolsSelect', 'WorkMethodsSelect')
+  else df <- select(df, 'LanguageRecommendationSelect', 'LearningPlatformSelect', 'CoursePlatformSelect', 'MLSkillsSelect', 'MLTechniquesSelect', 'WorkAlgorithmsSelect', 'WorkToolsSelect', 'WorkMethodsSelect')
   flat_data <- cSplit(df, c('LearningPlatformSelect', 'CoursePlatformSelect', 'MLSkillsSelect', 'MLTechniquesSelect', 'WorkAlgorithmsSelect', 'WorkToolsSelect', 'WorkMethodsSelect'), sep = ',')
   flat_data$ID <- seq.int(nrow(flat_data))
   print(flat_data)
@@ -52,6 +55,8 @@ clean_india_f <- clean(india_fem)
 
 clean_germany_m <- clean(germany_male)
 clean_germany_f <- clean(germany_fem)
+
+clean_data_science <- clean(data_science, FALSE)
 
 #TEST THE RULES FELLERS
 #Function to avoid repetition
@@ -77,7 +82,7 @@ getRules <- function (df, supp, conf){
   
   # Association rules
   rules<-apriori(transactions, parameter=list(minlen=2, supp=supp, conf=conf, target="rules"))
-  inspect(rules)
+  #inspect(rules)
   rules.sorted<-sort(rules, by="lift")
   inspect(rules.sorted)
   
@@ -87,13 +92,13 @@ getRules <- function (df, supp, conf){
   return(rules)
 }
 
-getRules(clean_usa_m, 0.1, .95)
-getRules(clean_usa_f, 0.1, .95)
-getRules(clean_germany_m, 0.1, .95)
-getRules(clean_germany_f, 0.1, .95)
+getRules(clean_usa_m, 0.2, .95)
+getRules(clean_usa_f, 0.2, .95)
+getRules(clean_germany_m, 0.2, .95)
+getRules(clean_germany_f, 0.2, .95)
 getRules(clean_india_m, 0.1, .95)
 getRules(clean_india_f, 0.1, .95)
-
+getRules(clean_data_science, 0.5, .95)
 #TODO: Implement Visualizations as functions
 
 #DONT RUN THESE YET IT MAY BLOW YOUR ENV UP
