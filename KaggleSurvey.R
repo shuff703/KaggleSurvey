@@ -1,6 +1,6 @@
 getwd()
-setwd('Documents/R/')
-kaggle_data <- read.csv('CSVDatasets/multipleChoiceResponses.csv')
+setwd('Documents/R/KaggleSurvey')
+kaggle_data <- read.csv('multipleChoiceResponses.csv')
 
 #Filter Data by Country
 usa <- kaggle_data[kaggle_data$Country == 'United States',]
@@ -26,7 +26,7 @@ print(nrow(india_male))
 print(nrow(india_fem))
 
 
-#Clean the shit
+#Clean the Data
 #Clean Function
 clean <- function(df){
   if(!require(tidyverse)) install.packages('tidyverse')
@@ -60,7 +60,7 @@ getRules <- function (df, supp, conf){
   dir.create(path = "CSVDatasets/tmp", showWarnings = FALSE)
   
   # Write our data.frame to a csv
-  write.csv(df, "./CSVDatasets/tmp/transactions.csv")
+  write.csv(df, "./tmp/transactions.csv")
   #Run Association Rules
   if(!require(arules)) install.packages("arules")
   library(arules)
@@ -68,7 +68,7 @@ getRules <- function (df, supp, conf){
   
   # Reading the data set as a dataframe object creates many problems.
   # So, let us read the data set as a transaction object.
-  transactions<-read.transactions("CSVDatasets/tmp/transactions.csv", format="single", cols = c('ID', 'Item'), sep=",", rm.duplicates = T)
+  transactions<-read.transactions("tmp/transactions.csv", format="single", cols = c('ID', 'Item'), sep=",", rm.duplicates = T)
   
   # Frequent itemsets
   frqisets<-apriori(transactions, parameter=list(minlen=2, supp=supp, conf=conf, target="frequent itemsets"))
@@ -85,11 +85,15 @@ getRules <- function (df, supp, conf){
 }
 
 getRules(clean_usa_m, 0.1, .95)
-getRules(clean_usa_f)
-getRules(clean_germany_m)
-getRules(clean_germany_f)
-getRules(clean_india_m)
-getRules(clean_india_f)
+getRules(clean_usa_f, 0.1, .95)
+getRules(clean_germany_m, 0.1, .95)
+getRules(clean_germany_f, 0.1, .95)
+getRules(clean_india_m, 0.1, .95)
+getRules(clean_india_f, 0.1, .95)
+
+#TODO: Implement Visualizations as functions
+
+#DONT RUN THESE YET IT MAY BLOW YOUR ENV UP
 
 if(!require(arulesViz)) install.packages("arulesViz")
 library(arulesViz)
