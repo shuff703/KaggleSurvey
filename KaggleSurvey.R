@@ -86,7 +86,8 @@ getRules <- function (df, supp, conf){
   
   # Association rules
   rules<-apriori(transactions, parameter = list(minlen = 2, supp = supp, conf = conf, target = 'rules'))
-  #inspect(rules)
+  
+  #Change this to alter the sort and how many rules are displayed
   rules.sorted<-sort(rules, by = 'lift')
   inspect(rules.sorted[1:50])
   
